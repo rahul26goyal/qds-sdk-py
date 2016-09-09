@@ -33,6 +33,7 @@ class DbTapCmdLine:
                             help="Type of database")
         create.add_argument("--location", dest="location", choices=["us-east-1", "us-west-2", "ap-southeast-1", "eu-west-1", "on-premise"],
                             help="Type of database", required=True)
+        create.add_argument("--skip_validation", dest="skip_validation", help="Skip Database Connection Validation")
         create.set_defaults(func=DbTapCmdLine.create)
 
         #List
@@ -78,6 +79,7 @@ class DbTapCmdLine:
                             help="Type of database")
         edit.add_argument("--location", dest="location", choices=["us-east-1", "us-west-2", "ap-southeast-1", "eu-west-1", "on-premise"],
                             help="Type of database")
+        edit.add_argument("--skip_validation", dest="skip_validation", help="Skip Database Connection Validation")
         edit.set_defaults(func=DbTapCmdLine.edit)
 
         #Kill
@@ -102,12 +104,14 @@ class DbTapCmdLine:
 
     @staticmethod
     def create(args):
+        log.info("args %s", args)
         dbtap = DbTap.create(db_name=args.name,
                              db_host=args.host,
                              db_user=args.user,
                              db_passwd=args.password,
                              db_type=args.type,
-                             db_location=args.location)
+                             db_location=args.location,
+                             skip_validation=args.skip_validation)
 
         return json.dumps(dbtap.attributes, sort_keys=True, indent=4)
 
@@ -148,6 +152,8 @@ class DbTapCmdLine:
             options["db_type"] = args.type
         if args.location is not None:
             options["db_location"] = args.location
+        if args.skip_validation is not None:
+            options["skip_validation"] = args.skip_validation
         tap = tap.edit(**options)
         return json.dumps(tap.attributes, sort_keys=True, indent=4)
 
